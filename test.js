@@ -50,6 +50,37 @@ test('set/get object', function (t) {
   })
 })
 
+test('set/getAll objects', function (t) {
+  t.timeoutAfter(3000)
+  var store = createStore()
+
+  var a = {a: 'a'}
+  var b = {b: 'b'}
+  var c = {c: 'c'}
+
+  Promise
+    .all([
+      store.set('a', a),
+      store.set('b', b),
+      store.set('c', c)
+    ])
+    .then(function () {
+      return store.getMultiple(['c', 'badkey', 'a', 'c', 'another-bad-key'])
+    })
+    .then(function (results) {
+      t.deepEqual(results[0], c)
+      t.deepEqual(results[1], undefined)
+      t.deepEqual(results[2], a)
+      t.deepEqual(results[3], c)
+      t.equal(results.length, 5)
+      t.end()
+    })
+    .catch(function (err) {
+      t.fail(err)
+      t.end()
+    })
+})
+
 test('get empty', function (t) {
   t.timeoutAfter(3000)
   var store = createStore()
